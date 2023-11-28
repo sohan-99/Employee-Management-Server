@@ -23,11 +23,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const serviceCollation = client.db('employeeManagementDB').collection('servicetype');
+    const serviceCollection = client.db('employeeManagementDB').collection('servicetype');
+    const usersCollection = client.db("employeeManagementDB").collection("users");
 
     // get all data to database 
     app.get('/servicetype', async (req, res) => {
-      const result = await serviceCollation.find().toArray();
+      const result = await serviceCollection.find().toArray();
       res.send(result)
     })
 
@@ -35,9 +36,28 @@ async function run() {
     app.get('/servicetype/:service_name', async (req, res) => {
       const service_name = req.params.service_name
       const query = { service_name: service_name }
-      const result = await serviceCollation.findOne(query);
+      const result = await serviceCollection.findOne(query);
       res.send(result);
     })
+
+    //user created 
+    app.post("/users", async (req, res) => {
+      const query = req.body;
+      const result = await usersCollection.insertOne(query);
+      res.send(result);
+    });
+
+     // check role 
+
+     app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");

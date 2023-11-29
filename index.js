@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
+var jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000;
 // middlewere
 app.use(cors());
@@ -70,12 +71,12 @@ async function run() {
     })
 
       //make HR api 
-      app.patch('/users/hr/:id', verifyToken, verifyAdmin, async (req, res) => {
+      app.patch('/users/hr/:id',  async (req, res) => {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) };
         const updatedDoc = {
           $set: {
-            role: 'HR'
+            designation: 'HR'
           }
         }
         const result = await usersCollection.updateOne(filter, updatedDoc);

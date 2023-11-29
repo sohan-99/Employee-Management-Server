@@ -48,7 +48,6 @@ async function run() {
     });
 
      // check role 
-
      app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -56,6 +55,11 @@ async function run() {
       res.send(result);
     });
 
+    // all employee get and show in website
+    app.get('/users', async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection

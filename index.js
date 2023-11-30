@@ -34,33 +34,33 @@ async function run() {
     })
 
       // middlewares 
-      const verifyToken = (req, res, next) => {
-        console.log('inside verify token', req.headers.authorization);
-        if (!req.headers.authorization) {
-          return res.status(401).send({ message: 'unauthorized access' });
-        }
-        const token = req.headers.authorization.split(' ')[1];
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-          if (err) {
-            return res.status(401).send({ message: 'unauthorized access' })
-          }
-          req.decoded = decoded;
-          next();
-        })
-      }
+      // const verifyToken = (req, res, next) => {
+      //   console.log('inside verify token', req.headers.authorization);
+      //   if (!req.headers.authorization) {
+      //     return res.status(401).send({ message: 'unauthorized access' });
+      //   }
+      //   const token = req.headers.authorization.split(' ')[1];
+      //   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      //     if (err) {
+      //       return res.status(401).send({ message: 'unauthorized access' })
+      //     }
+      //     req.decoded = decoded;
+      //     next();
+      //   })
+      // }
 
        // use verify admin after verifyToken
-    const verifyAdmin = async (req, res, next) => {
-      const email = req.decoded.email;
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      const isAdmin = user?.
-      designation === 'admin';
-      if (!isAdmin) {
-        return res.status(403).send({ message: 'forbidden access' });
-      }
-      next();
-    }
+    // const verifyAdmin = async (req, res, next) => {
+    //   const email = req.decoded.email;
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   const isAdmin = user?.
+    //   designation === 'admin';
+    //   if (!isAdmin) {
+    //     return res.status(403).send({ message: 'forbidden access' });
+    //   }
+    //   next();
+    // }
 
 
     // get all data to database 
@@ -128,19 +128,16 @@ async function run() {
       });
 
 
-    // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+   
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+   
   }
 }
 run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('coffe-store-server is runing')
+  res.send('Employee-managment-server is runing')
 })
 
 app.listen(port, () => {

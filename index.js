@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     const serviceCollection = client.db('employeeManagementDB').collection('servicetype');
     const usersCollection = client.db("employeeManagementDB").collection("users");
 
@@ -85,7 +85,7 @@ async function run() {
     });
 
     // check role 
-    app.get("/users/:email", verifyToken, async (req, res) => {
+    app.get("/users/:email",  async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await usersCollection.findOne(query);
@@ -93,14 +93,14 @@ async function run() {
     });
 
     // all employee get and show in website
-    app.get('/users',verifyAdmin, verifyToken, async (req, res) => {
+    app.get('/users',  async (req, res) => {
       console.log(req.headers);
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
 
     // employee deleted api
-    app.delete('/users/:id',verifyAdmin,verifyToken,  async (req, res) => {
+    app.delete('/users/:id',  async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await usersCollection.deleteOne(query);
@@ -108,7 +108,7 @@ async function run() {
     })
 
       //make HR api 
-      app.patch('/users/hr/:id',verifyToken,  async (req, res) => {
+      app.patch('/users/hr/:id',  async (req, res) => {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) };
         const updatedDoc = {
@@ -121,7 +121,7 @@ async function run() {
       })
 
       //all employee list api  
-      app.get("/allemployee",verifyToken, async (req, res) => {
+      app.get("/allemployee", async (req, res) => {
         const filter = { designation: "Employee" };
         const result = await usersCollection.find(filter).toArray();
         res.send(result);
@@ -129,8 +129,8 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

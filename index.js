@@ -33,21 +33,35 @@ async function run() {
       res.send({ token });
     })
 
-      // // middlewares 
-      // const verifyToken = (req, res, next) => {
-      //   console.log('inside verify token', req.headers.authorization);
-      //   if (!req.headers.authorization) {
-      //     return res.status(401).send({ message: 'unauthorized access' });
-      //   }
-      //   const token = req.headers.authorization.split(' ')[1];
-      //   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-      //     if (err) {
-      //       return res.status(401).send({ message: 'unauthorized access' })
-      //     }
-      //     req.decoded = decoded;
-      //     next();
-      //   })
-      // }
+      // middlewares 
+      const verifyToken = (req, res, next) => {
+        console.log('inside verify token', req.headers.authorization);
+        if (!req.headers.authorization) {
+          return res.status(401).send({ message: 'unauthorized access' });
+        }
+        const token = req.headers.authorization.split(' ')[1];
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+          if (err) {
+            return res.status(401).send({ message: 'unauthorized access' })
+          }
+          req.decoded = decoded;
+          next();
+        })
+      }
+
+       // use verify admin after verifyToken
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const isAdmin = user?.
+      designation === 'admin';
+      if (!isAdmin) {
+        return res.status(403).send({ message: 'forbidden access' });
+      }
+      next();
+    }
+
 
     // get all data to database 
     app.get('/servicetype', async (req, res) => {
@@ -71,7 +85,7 @@ async function run() {
     });
 
     // check role 
-    app.get("/users/:email", async (req, res) => {
+    app.get("/users/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await usersCollection.findOne(query);
@@ -79,14 +93,14 @@ async function run() {
     });
 
     // all employee get and show in website
-    app.get('/users', async (req, res) => {
+    app.get('/users',verifyAdmin, verifyToken, async (req, res) => {
       console.log(req.headers);
       const result = await usersCollection.find().toArray();
       res.send(result)
     })
 
     // employee deleted api
-    app.delete('/users/:id',  async (req, res) => {
+    app.delete('/users/:id',verifyAdmin,verifyToken,  async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await usersCollection.deleteOne(query);
@@ -94,7 +108,7 @@ async function run() {
     })
 
       //make HR api 
-      app.patch('/users/hr/:id',  async (req, res) => {
+      app.patch('/users/hr/:id',verifyToken,  async (req, res) => {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) };
         const updatedDoc = {
@@ -107,7 +121,7 @@ async function run() {
       })
 
       //all employee list api  
-      app.get("/allemployee", async (req, res) => {
+      app.get("/allemployee",verifyToken, async (req, res) => {
         const filter = { designation: "Employee" };
         const result = await usersCollection.find(filter).toArray();
         res.send(result);
